@@ -55,10 +55,10 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'slack-mcp-server=main:main',
+            'slack-mcp-server=main:run',
         ],
         'mcp.servers': [
-            'slack=main:main',
+            'slack=main:run',
         ],
     },
     project_urls={

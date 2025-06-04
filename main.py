@@ -371,5 +371,10 @@ async def main():
     await slack_client.close()
 
 
-if __name__ == "__main__":
+def run():
+    """Entry point for console script."""
     asyncio.run(main())
+
+
+if __name__ == "__main__":
+    run()
