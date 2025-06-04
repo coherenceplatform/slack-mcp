@@ -291,11 +291,13 @@ async def main():
     # Initialize Slack client
     slack_client = SlackClient(bot_token)
     
-    # Register tools
-    for tool in TOOLS:
-        server.add_tool(tool)
+    # Register tools using the list_tools decorator
+    @server.list_tools()
+    async def list_tools() -> List[Tool]:
+        """Return list of available tools."""
+        return TOOLS
     
-    @server.call_tool
+    @server.call_tool()
     async def call_tool(name: str, arguments: Dict[str, Any]) -> List[TextContent]:
         """Handle tool calls."""
         print(f"Received tool call: {name} with args: {arguments}", flush=True)
