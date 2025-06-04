@@ -39,7 +39,7 @@ setup(
     ],
     keywords='slack mcp model-context-protocol ai assistant integration',
     packages=find_packages(exclude=['tests*', 'docs*']),
-    py_modules=['slack_mcp_server'],
+    py_modules=['main'],
     python_requires='>=3.9',
     install_requires=requirements,
     extras_require={
