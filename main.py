@@ -27,6 +27,10 @@ class ListChannelsArgs(BaseModel):
         default=None,
         description="Pagination cursor for next page of results"
     )
+    types: Optional[str] = Field(
+        default="public_channel,private_channel",
+        description="Comma-separated list of channel types to include (public_channel, private_channel, mpim, im)"
+    )
 
 class PostMessageArgs(BaseModel):
     channel_id: str = Field(description="The ID of the channel to post to")
@@ -82,13 +86,13 @@ class SlackClient:
         }
         self.client = httpx.AsyncClient()
     
-    async def get_channels(self, limit: int = 100, cursor: Optional[str] = None) -> Dict[str, Any]:
-        """Get list of channels."""
+    async def get_channels(self, limit: int = 100, cursor: Optional[str] = None, types: str = "public_channel,private_channel") -> Dict[str, Any]:
+        """Get list of channels including private channels."""
         predefined_channel_ids = os.getenv("SLACK_CHANNEL_IDS")
         
         if not predefined_channel_ids:
             params = {
-                "types": "public_channel",
+                "types": types,
                 "exclude_archived": "true",
                 "limit": str(min(limit, 200)),
                 "team_id": os.getenv("SLACK_TEAM_ID")
@@ -103,7 +107,7 @@ class SlackClient:
             )
             return response.json()
         
-        # Handle predefined channels
+        # Handle predefined channels (works for both public and private)
         channel_ids = [id.strip() for id in predefined_channel_ids.split(",")]
         channels = []
         
@@ -226,12 +230,12 @@ class SlackClient:
 TOOLS = [
     Tool(
         name="slack_list_channels",
-        description="List public or pre-defined channels in the workspace with pagination",
+        description="List channels in the workspace (public and private) with pagination. Use 'types' parameter to filter channel types.",
         inputSchema=ListChannelsArgs.model_json_schema()
     ),
     Tool(
         name="slack_post_message",
-        description="Post a new message to a Slack channel",
+        description="Post a new message to a Slack channel (works with both public and private channels)",
         inputSchema=PostMessageArgs.model_json_schema()
     ),
     Tool(
@@ -246,7 +250,7 @@ TOOLS = [
     ),
     Tool(
         name="slack_get_channel_history",
-        description="Get recent messages from a channel",
+        description="Get recent messages from a channel (works with both public and private channels)",
         inputSchema=GetChannelHistoryArgs.model_json_schema()
     ),
     Tool(
@@ -299,7 +303,7 @@ async def main():
         try:
             if name == "slack_list_channels":
                 args = ListChannelsArgs(**arguments)
-                response = await slack_client.get_channels(args.limit, args.cursor)
+                response = await slack_client.get_channels(args.limit, args.cursor, args.types)
                 
             elif name == "slack_post_message":
                 args = PostMessageArgs(**arguments)
