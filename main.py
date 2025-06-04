@@ -364,11 +364,11 @@ async def main():
             return [TextContent(type="text", text=json.dumps(error_response))]
     
     # Run the server
-    async with stdio_server() as streams:
+    async with stdio_server() as (read_stream, write_stream):
         print("Slack MCP Server running on stdio", flush=True)
         await server.run(
-            streams.read_stream,
-            streams.write_stream,
+            read_stream,
+            write_stream,
             server.create_initialization_options()
         )
     
