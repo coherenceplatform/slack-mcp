@@ -15,7 +15,6 @@ from mcp.types import (
     Tool,
     TextContent,
     CallToolResult,
-    ErrorContent
 )
 
 # Tool argument type definitions using Pydantic
